@@ -6,6 +6,7 @@ import type { Props } from '@astrojs/starlight/props'
 // TODO(HiDeoo) mobile/responsive
 // TODO(HiDeoo) click = link to doc for specific override
 // TODO(HiDeoo) click = copy name?
+// TODO(HiDeoo) click = modal containing everything with an example and everything?
 ---
 
 <starlight-override-map></starlight-override-map>
@@ -13,11 +14,11 @@ import type { Props } from '@astrojs/starlight/props'
 
 <style is:global>
   :root {
-    --starlight-override-map-highlight-color: hsl(347 77% 50%);
+    --starlight-override-map-accent-color: hsl(347 77% 50%);
   }
 
   :root[data-theme='light'] {
-    --starlight-override-map-highlight-color: hsl(345 83% 41%);
+    --starlight-override-map-accent-color: hsl(345 83% 41%);
   }
 </style>
 
@@ -26,7 +27,7 @@ import type { Props } from '@astrojs/starlight/props'
     // FIXME(HiDeoo) Head
     // FIXME(HiDeoo) Accessibility
     // Layout
-    { name: 'PageFrame', selector: '.page', offset: -1 },
+    { name: 'PageFrame', selector: '.page', offset: -2 },
     // TODO(HiDeoo) MobileMenuToggle
     { name: 'TwoColumnContent', selector: '.lg\\:sl-flex' },
     // Header
@@ -38,10 +39,10 @@ import type { Props } from '@astrojs/starlight/props'
     { name: 'ThemeSelect', selector: 'starlight-theme-select label', offset: { inline: 8 } },
     // TODO(HiDeoo) LanguageSelect
     // Global Sidebar
-    { name: 'Sidebar', selector: '.sidebar-content' },
+    { name: 'Sidebar', selector: '.sidebar-content', offset: -2 },
     // TODO(HiDeoo) MobileMenuFooter
     // Page Sidebar
-    { name: 'PageSidebar', selector: '.right-sidebar' },
+    { name: 'PageSidebar', selector: '.right-sidebar', offset: { block: -2 } },
     { name: 'TableOfContents', selector: 'starlight-toc', offset: 8 },
     // TODO(HiDeoo) MobileTableOfContents
     // Content
@@ -99,19 +100,18 @@ import type { Props } from '@astrojs/starlight/props'
 
       #createOverlay() {
         this.#highlight = document.createElement('div')
-        this.#highlight.style.border = `2px dashed var(--starlight-override-map-highlight-color)`
-        this.#highlight.style.borderRadius = '0.25rem'
+        this.#highlight.style.border = `2px dashed var(--starlight-override-map-accent-color)`
         this.#highlight.style.display = 'none'
         this.#highlight.style.pointerEvents = 'none'
         this.#highlight.style.position = 'absolute'
         this.#highlight.style.zIndex = '100'
 
         this.#tooltip = document.createElement('div')
-        this.#tooltip.style.backgroundColor = 'rgba(0, 0, 0, 0.5)'
-        this.#tooltip.style.borderRadius = '0.5rem'
+        this.#tooltip.style.backgroundColor = 'var(--starlight-override-map-accent-color)'
         this.#tooltip.style.color = 'white'
         this.#tooltip.style.display = 'none'
-        this.#tooltip.style.padding = '0.5rem'
+        this.#tooltip.style.padding = '0.375rem 0.625rem'
+        this.#tooltip.style.pointerEvents = 'none'
         this.#tooltip.style.position = 'absolute'
         this.#tooltip.style.zIndex = '101'
 
@@ -125,6 +125,8 @@ import type { Props } from '@astrojs/starlight/props'
         const rect = element.getBoundingClientRect()
         const blockOffset = typeof override.offset === 'number' ? override.offset : (override.offset?.block ?? 0)
         const inlineOffset = typeof override.offset === 'number' ? override.offset : (override.offset?.inline ?? 0)
+        // This is probably a bit fragile so probably a good refactor candidate.
+        const isTooltipInside = rect.height < 100
 
         this.#highlight.style.top = `${rect.top + window.scrollY - blockOffset}px`
         this.#highlight.style.left = `${rect.left + window.scrollX - inlineOffset}px`
@@ -132,8 +134,9 @@ import type { Props } from '@astrojs/starlight/props'
         this.#highlight.style.height = `${rect.height + blockOffset * 2}px`
         this.#highlight.style.display = 'block'
 
-        // TODO(HiDeoo) position to handle viewport/current position
-        this.#tooltip.style.top = `${rect.top + window.scrollY + rect.height + blockOffset}px`
+        this.#tooltip.style.top = isTooltipInside
+          ? `${rect.top + window.scrollY + rect.height + blockOffset - 2}px`
+          : `${rect.top + window.scrollY - blockOffset}px`
         this.#tooltip.style.left = `${rect.left + window.scrollX - inlineOffset}px`
         this.#tooltip.style.display = 'block'
         this.#tooltip.textContent = override.name
