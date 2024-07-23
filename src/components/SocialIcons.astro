@@ -3,118 +3,118 @@ import Default from '@astrojs/starlight/components/SocialIcons.astro'
 import type { Props } from '@astrojs/starlight/props'
 
 // TODO(HiDeoo) only certain page?
+// TODO(HiDeoo) mobile/responsive
 ---
 
-<starlight-override-map>plop</starlight-override-map>
+<starlight-override-map></starlight-override-map>
 <Default {...Astro.props}><slot /></Default>
 
 <script>
+  const overrides: Override[] = [
+    // Header
+    { name: 'Header', selector: 'div.header', offset: { block: 8, inline: 20 } },
+    { name: 'SiteTitle', selector: '.site-title', offset: { inline: 8 } },
+    // TODO(HiDeoo) search modal?
+    { name: 'Search', selector: 'site-search button', offset: 6 },
+    // TODO(HiDeoo)
+    // { name: 'SocialIcons', selector: 'div.header' },
+    { name: 'ThemeSelect', selector: 'starlight-theme-select label', offset: { inline: 8 } },
+    { name: 'LanguageSelect', selector: 'starlight-lang-select label' },
+  ]
+
   customElements.define(
     'starlight-override-map',
     class StarlightOverrideMap extends HTMLElement {
       static #didRegisterListeners = false
-      static #overrides: Override[] = [
-        // Header
-        { name: 'Header', selector: 'div.header' },
-        { name: 'SiteTitle', selector: '.site-title' },
-        // TODO(HiDeoo) search modal?
-        { name: 'Search', selector: 'site-search button' },
-        // TODO(HiDeoo)
-        // { name: 'SocialIcons', selector: 'div.header' },
-        { name: 'ThemeSelect', selector: 'starlight-theme-select label' },
-        { name: 'LanguageSelect', selector: 'starlight-lang-select label' },
-      ]
+      #highlight: HTMLDivElement | undefined
       #tooltip: HTMLDivElement | undefined
 
       constructor() {
         super()
 
         if (!StarlightOverrideMap.#didRegisterListeners) {
+          this.#createOverlay()
           this.#registerListeners()
-          this.#createTooltip()
         }
       }
 
       #registerListeners() {
         StarlightOverrideMap.#didRegisterListeners = true
 
-        const overlays = new Map()
-
-        for (const override of StarlightOverrideMap.#overrides) {
+        for (const override of overrides) {
           const elements = document.querySelectorAll(override.selector)
           // TODO(HiDeoo) validate only 1 element (not always the case)
-          // TODO(HiDeoo) loop over multiple elements
 
-          // TODO(HiDeoo) focus event too
-          elements[0]?.addEventListener(
-            'mouseover',
-            () => {
-              // TODO(HiDeoo) use this for opacity and z-index
-              const depth = overlays.size
-              console.error('🚨 [SocialIcons.astro:54] depth:', depth)
+          for (const element of elements) {
+            // TODO(HiDeoo) focus event too
+            element.addEventListener(
+              'mouseover',
+              () => {
+                this.#showOverlay(override, element)
+              },
+              { capture: true },
+            )
 
-              const overlay = document.createElement('div')
-              overlay.style.backgroundColor = 'rgba(255, 0, 0, 0.1)'
-              overlay.style.border = '2px dashed red'
-              overlay.style.pointerEvents = 'none'
-              overlay.style.position = 'absolute'
-              overlay.style.zIndex = '100'
-
-              // TODO(HiDeoo) padding/margin?
-              const rect = elements[0].getBoundingClientRect()
-              overlay.style.top = `${rect.top}px`
-              overlay.style.left = `${rect.left}px`
-              overlay.style.width = `${rect.width}px`
-              overlay.style.height = `${rect.height}px`
-
-              this.#showTooltip(override)
-              // TODO(HiDeoo) move to showTooltip
-              // TODO(HiDeoo) position to handle viewport/current position
-              this.#tooltip.style.top = `${rect.top + rect.height}px`
-              this.#tooltip.style.left = `${rect.left}px`
-
-              document.body.append(overlay)
-
-              overlays.set(elements[0], overlay)
-            },
-            { capture: true },
-          )
-
-          // TODO(HiDeoo) blur
-          elements[0]?.addEventListener('mouseout', () => {
-            overlays.get(elements[0])?.remove()
-
-            this.#hideTooltip()
-          })
+            // TODO(HiDeoo) blur
+            element.addEventListener('mouseout', () => {
+              this.#hideOverlay()
+            })
+          }
         }
       }
 
-      #createTooltip() {
+      #createOverlay() {
+        this.#highlight = document.createElement('div')
+        // TODO(HiDeoo)
+        // overlay.style.backgroundColor = `color-mix(in hsl, var(--sl-color-accent) 50%, transparent)`
+        this.#highlight.style.border = `2px dashed color-mix(in hsl, var(--sl-color-accent) 100%, transparent)`
+        this.#highlight.style.borderRadius = '0.25rem'
+        this.#highlight.style.display = 'none'
+        this.#highlight.style.pointerEvents = 'none'
+        this.#highlight.style.position = 'absolute'
+        this.#highlight.style.zIndex = '100'
+
         this.#tooltip = document.createElement('div')
         this.#tooltip.style.backgroundColor = 'rgba(0, 0, 0, 0.5)'
         this.#tooltip.style.borderRadius = '0.5rem'
         this.#tooltip.style.color = 'white'
+        this.#tooltip.style.display = 'none'
         this.#tooltip.style.padding = '0.5rem'
         this.#tooltip.style.position = 'absolute'
         this.#tooltip.style.zIndex = '101'
-        this.#tooltip.style.top = '0'
-        this.#tooltip.style.left = '0'
-        this.#tooltip.textContent = 'Starlight Override'
-        this.#tooltip.style.display = 'none'
 
+        document.body.append(this.#highlight)
         document.body.append(this.#tooltip)
       }
 
-      #showTooltip(override: Override) {
-        if (!this.#tooltip) return
+      #showOverlay(override: Override, element: Element) {
+        if (!this.#highlight || !this.#tooltip) return
 
+        // TODO(HiDeoo) padding/margin?
+        const rect = element.getBoundingClientRect()
+
+        const blockOffset = typeof override.offset === 'number' ? override.offset : (override.offset?.block ?? 0)
+        const inlineOffset = typeof override.offset === 'number' ? override.offset : (override.offset?.inline ?? 0)
+
+        this.#highlight.style.top = `${rect.top - blockOffset}px`
+        this.#highlight.style.left = `${rect.left - inlineOffset}px`
+        this.#highlight.style.width = `${rect.width + inlineOffset * 2}px`
+        this.#highlight.style.height = `${rect.height + blockOffset * 2}px`
+        this.#highlight.style.display = 'block'
+
+        // TODO(HiDeoo) move to showTooltip
+        // TODO(HiDeoo) handle offseets
+        // TODO(HiDeoo) position to handle viewport/current position
+        this.#tooltip.style.top = `${rect.top + rect.height}px`
+        this.#tooltip.style.left = `${rect.left}px`
         this.#tooltip.style.display = 'block'
         this.#tooltip.textContent = override.name
       }
 
-      #hideTooltip() {
-        if (!this.#tooltip) return
+      #hideOverlay() {
+        if (!this.#tooltip || !this.#highlight) return
 
+        this.#highlight.style.display = 'none'
         this.#tooltip.style.display = 'none'
       }
     },
@@ -122,6 +122,8 @@ import type { Props } from '@astrojs/starlight/props'
 
   interface Override {
     name: string
+    // In pixels
+    offset?: number | { block?: number; inline?: number }
     selector: string
   }
 </script>
