@@ -5,6 +5,9 @@ import type { Props } from '@astrojs/starlight/props'
 // TODO(HiDeoo) only certain page?
 // TODO(HiDeoo) mobile/responsive
 // TODO(HiDeoo) click = link to doc for specific override
+// TODO(HiDeoo) click = copy name?
+
+// FIXME(HiDeoo) scroll
 ---
 
 <starlight-override-map></starlight-override-map>
@@ -22,15 +25,40 @@ import type { Props } from '@astrojs/starlight/props'
 
 <script>
   const overrides: Override[] = [
+    // FIXME(HiDeoo) Head
+    // FIXME(HiDeoo) Accessibility
+    // Layout
+    { name: 'PageFrame', selector: '.page', offset: -1 },
+    // TODO(HiDeoo) MobileMenuToggle
+    { name: 'TwoColumnContent', selector: '.lg\\:sl-flex' },
     // Header
     { name: 'Header', selector: 'div.header', offset: { block: 8, inline: 20 } },
     { name: 'SiteTitle', selector: '.site-title', offset: { inline: 8 } },
-    // TODO(HiDeoo) search modal?
     { name: 'Search', selector: 'site-search button', offset: 6 },
-    // TODO(HiDeoo)
-    // { name: 'SocialIcons', selector: 'div.header' },
+    // TODO(HiDeoo) search modal?
+    // TODO(HiDeoo) SocialIcons
     { name: 'ThemeSelect', selector: 'starlight-theme-select label', offset: { inline: 8 } },
-    { name: 'LanguageSelect', selector: 'starlight-lang-select label' },
+    // TODO(HiDeoo) LanguageSelect
+    // Global Sidebar
+    { name: 'Sidebar', selector: '.sidebar-content' },
+    // TODO(HiDeoo) MobileMenuFooter
+    // Page Sidebar
+    { name: 'PageSidebar', selector: '.right-sidebar' },
+    { name: 'TableOfContents', selector: 'starlight-toc', offset: 8 },
+    // TODO(HiDeoo) MobileTableOfContents
+    // Content
+    // TODO(HiDeoo) Banner
+    { name: 'ContentPanel', selector: '.content-panel' },
+    { name: 'PageTitle', selector: 'h1#_top', offset: { inline: 8 } },
+    // TODO(HiDeoo) DraftContentNotice
+    // TODO(HiDeoo) FallbackContentNotice
+    // TODO(HiDeoo) Hero
+    { name: 'MarkdownContent', selector: '.sl-markdown-content', offset: { inline: 8 } },
+    // Footer
+    { name: 'Footer', selector: 'footer' },
+    // TODO(HiDeoo) LastUpdated
+    // TODO(HiDeoo) EditLink
+    // TODO(HiDeoo) Pagination
   ]
 
   customElements.define(
@@ -96,9 +124,7 @@ import type { Props } from '@astrojs/starlight/props'
       #showOverlay(override: Override, element: Element) {
         if (!this.#highlight || !this.#tooltip) return
 
-        // TODO(HiDeoo) padding/margin?
         const rect = element.getBoundingClientRect()
-
         const blockOffset = typeof override.offset === 'number' ? override.offset : (override.offset?.block ?? 0)
         const inlineOffset = typeof override.offset === 'number' ? override.offset : (override.offset?.inline ?? 0)
 
