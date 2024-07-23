@@ -24,12 +24,14 @@ import type { Props } from '@astrojs/starlight/props'
         { name: 'ThemeSelect', selector: 'starlight-theme-select label' },
         { name: 'LanguageSelect', selector: 'starlight-lang-select label' },
       ]
+      #tooltip: HTMLDivElement | undefined
 
       constructor() {
         super()
 
         if (!StarlightOverrideMap.#didRegisterListeners) {
           this.#registerListeners()
+          this.#createTooltip()
         }
       }
 
@@ -41,11 +43,16 @@ import type { Props } from '@astrojs/starlight/props'
         for (const override of StarlightOverrideMap.#overrides) {
           const elements = document.querySelectorAll(override.selector)
           // TODO(HiDeoo) validate only 1 element (not always the case)
+          // TODO(HiDeoo) loop over multiple elements
 
           // TODO(HiDeoo) focus event too
           elements[0]?.addEventListener(
             'mouseover',
             () => {
+              // TODO(HiDeoo) use this for opacity and z-index
+              const depth = overlays.size
+              console.error('🚨 [SocialIcons.astro:54] depth:', depth)
+
               const overlay = document.createElement('div')
               overlay.style.backgroundColor = 'rgba(255, 0, 0, 0.1)'
               overlay.style.border = '2px dashed red'
@@ -60,6 +67,12 @@ import type { Props } from '@astrojs/starlight/props'
               overlay.style.width = `${rect.width}px`
               overlay.style.height = `${rect.height}px`
 
+              this.#showTooltip(override)
+              // TODO(HiDeoo) move to showTooltip
+              // TODO(HiDeoo) position to handle viewport/current position
+              this.#tooltip.style.top = `${rect.top + rect.height}px`
+              this.#tooltip.style.left = `${rect.left}px`
+
               document.body.append(overlay)
 
               overlays.set(elements[0], overlay)
@@ -70,8 +83,39 @@ import type { Props } from '@astrojs/starlight/props'
           // TODO(HiDeoo) blur
           elements[0]?.addEventListener('mouseout', () => {
             overlays.get(elements[0])?.remove()
+
+            this.#hideTooltip()
           })
         }
+      }
+
+      #createTooltip() {
+        this.#tooltip = document.createElement('div')
+        this.#tooltip.style.backgroundColor = 'rgba(0, 0, 0, 0.5)'
+        this.#tooltip.style.borderRadius = '0.5rem'
+        this.#tooltip.style.color = 'white'
+        this.#tooltip.style.padding = '0.5rem'
+        this.#tooltip.style.position = 'absolute'
+        this.#tooltip.style.zIndex = '101'
+        this.#tooltip.style.top = '0'
+        this.#tooltip.style.left = '0'
+        this.#tooltip.textContent = 'Starlight Override'
+        this.#tooltip.style.display = 'none'
+
+        document.body.append(this.#tooltip)
+      }
+
+      #showTooltip(override: Override) {
+        if (!this.#tooltip) return
+
+        this.#tooltip.style.display = 'block'
+        this.#tooltip.textContent = override.name
+      }
+
+      #hideTooltip() {
+        if (!this.#tooltip) return
+
+        this.#tooltip.style.display = 'none'
       }
     },
   )
