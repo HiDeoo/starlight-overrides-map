@@ -6,7 +6,6 @@
   "author": "HiDeoo <github@hideoo.dev> (https://hideoo.dev)",
   "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test implemented.\" && exit 1",
     "lint": "prettier -c --cache . && eslint . --cache --max-warnings=0 && tsc --noEmit",
     "prepare": "husky"
   },
