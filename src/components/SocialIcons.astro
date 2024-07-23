@@ -1,0 +1,83 @@
+---
+import Default from '@astrojs/starlight/components/SocialIcons.astro'
+import type { Props } from '@astrojs/starlight/props'
+
+// TODO(HiDeoo) only certain page?
+---
+
+<starlight-override-map>plop</starlight-override-map>
+<Default {...Astro.props}><slot /></Default>
+
+<script>
+  customElements.define(
+    'starlight-override-map',
+    class StarlightOverrideMap extends HTMLElement {
+      static #didRegisterListeners = false
+      static #overrides: Override[] = [
+        // Header
+        { name: 'Header', selector: 'div.header' },
+        { name: 'SiteTitle', selector: '.site-title' },
+        // TODO(HiDeoo) search modal?
+        { name: 'Search', selector: 'site-search button' },
+        // TODO(HiDeoo)
+        // { name: 'SocialIcons', selector: 'div.header' },
+        { name: 'ThemeSelect', selector: 'starlight-theme-select label' },
+        { name: 'LanguageSelect', selector: 'starlight-lang-select label' },
+      ]
+
+      constructor() {
+        super()
+
+        if (!StarlightOverrideMap.#didRegisterListeners) {
+          this.#registerListeners()
+        }
+      }
+
+      #registerListeners() {
+        StarlightOverrideMap.#didRegisterListeners = true
+
+        const overlays = new Map()
+
+        for (const override of StarlightOverrideMap.#overrides) {
+          const elements = document.querySelectorAll(override.selector)
+          // TODO(HiDeoo) validate only 1 element (not always the case)
+
+          // TODO(HiDeoo) focus event too
+          elements[0]?.addEventListener(
+            'mouseover',
+            () => {
+              const overlay = document.createElement('div')
+              overlay.style.backgroundColor = 'rgba(255, 0, 0, 0.1)'
+              overlay.style.border = '2px dashed red'
+              overlay.style.pointerEvents = 'none'
+              overlay.style.position = 'absolute'
+              overlay.style.zIndex = '100'
+
+              // TODO(HiDeoo) padding/margin?
+              const rect = elements[0].getBoundingClientRect()
+              overlay.style.top = `${rect.top}px`
+              overlay.style.left = `${rect.left}px`
+              overlay.style.width = `${rect.width}px`
+              overlay.style.height = `${rect.height}px`
+
+              document.body.append(overlay)
+
+              overlays.set(elements[0], overlay)
+            },
+            { capture: true },
+          )
+
+          // TODO(HiDeoo) blur
+          elements[0]?.addEventListener('mouseout', () => {
+            overlays.get(elements[0])?.remove()
+          })
+        }
+      }
+    },
+  )
+
+  interface Override {
+    name: string
+    selector: string
+  }
+</script>
