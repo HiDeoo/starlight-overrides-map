@@ -6,8 +6,19 @@
   "author": "HiDeoo <github@hideoo.dev> (https://hideoo.dev)",
   "type": "module",
   "scripts": {
-    "lint": "prettier -c --cache . && eslint . --cache --max-warnings=0 && tsc --noEmit",
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro",
+    "lint": "prettier -c --cache . && eslint . --cache --max-warnings=0 && astro check",
     "prepare": "husky"
+  },
+  "dependencies": {
+    "@astrojs/check": "^0.8.2",
+    "@astrojs/starlight": "^0.25.1",
+    "astro": "^4.12.2",
+    "sharp": "^0.32.5"
   },
   "devDependencies": {
     "@hideoo/eslint-config": "^3.0.1",
@@ -17,6 +28,7 @@
     "husky": "^9.1.1",
     "lint-staged": "^15.2.7",
     "prettier": "^3.3.3",
+    "prettier-plugin-astro": "^0.14.1",
     "typescript": "^5.5.4"
   },
   "engines": {
@@ -34,7 +46,6 @@
     "url": "https://github.com/HiDeoo/starlight-override-map.git"
   },
   "bugs": "https://github.com/HiDeoo/starlight-override-map/issues",
-  "prettier": "@hideoo/prettier-config",
   "lint-staged": {
     "*": [
       "prettier -w -u --cache",
