@@ -41,24 +41,21 @@ import type { Props } from '@astrojs/starlight/props'
       #registerListeners() {
         StarlightOverrideMap.#didRegisterListeners = true
 
+        const inEvents = ['focus', 'mouseover'] as const
+        const outEvents = ['blur', 'mouseout'] as const
+
         for (const override of overrides) {
           const elements = document.querySelectorAll(override.selector)
           // TODO(HiDeoo) validate only 1 element (not always the case)
 
           for (const element of elements) {
-            // TODO(HiDeoo) focus event too
-            element.addEventListener(
-              'mouseover',
-              () => {
-                this.#showOverlay(override, element)
-              },
-              { capture: true },
-            )
+            for (const event of inEvents) {
+              element.addEventListener(event, () => this.#showOverlay(override, element), { capture: true })
+            }
 
-            // TODO(HiDeoo) blur
-            element.addEventListener('mouseout', () => {
-              this.#hideOverlay()
-            })
+            for (const event of outEvents) {
+              element.addEventListener(event, () => this.#hideOverlay())
+            }
           }
         }
       }
