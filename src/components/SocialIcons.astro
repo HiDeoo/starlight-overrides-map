@@ -10,6 +10,16 @@ import type { Props } from '@astrojs/starlight/props'
 <starlight-override-map></starlight-override-map>
 <Default {...Astro.props}><slot /></Default>
 
+<style is:global>
+  :root {
+    --starlight-override-map-highlight-color: hsl(347 77% 50%);
+  }
+
+  :root[data-theme='light'] {
+    --starlight-override-map-highlight-color: hsl(345 83% 41%);
+  }
+</style>
+
 <script>
   const overrides: Override[] = [
     // Header
@@ -63,7 +73,7 @@ import type { Props } from '@astrojs/starlight/props'
 
       #createOverlay() {
         this.#highlight = document.createElement('div')
-        this.#highlight.style.border = `2px dashed var(--sl-color-accent)`
+        this.#highlight.style.border = `2px dashed var(--starlight-override-map-highlight-color)`
         this.#highlight.style.borderRadius = '0.25rem'
         this.#highlight.style.display = 'none'
         this.#highlight.style.pointerEvents = 'none'
