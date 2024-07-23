@@ -6,8 +6,6 @@ import type { Props } from '@astrojs/starlight/props'
 // TODO(HiDeoo) mobile/responsive
 // TODO(HiDeoo) click = link to doc for specific override
 // TODO(HiDeoo) click = copy name?
-
-// FIXME(HiDeoo) scroll
 ---
 
 <starlight-override-map></starlight-override-map>
@@ -53,9 +51,9 @@ import type { Props } from '@astrojs/starlight/props'
     // TODO(HiDeoo) DraftContentNotice
     // TODO(HiDeoo) FallbackContentNotice
     // TODO(HiDeoo) Hero
-    { name: 'MarkdownContent', selector: '.sl-markdown-content', offset: { inline: 8 } },
+    { name: 'MarkdownContent', selector: '.sl-markdown-content', offset: 8 },
     // Footer
-    { name: 'Footer', selector: 'footer' },
+    { name: 'Footer', selector: 'footer', offset: 8 },
     // TODO(HiDeoo) LastUpdated
     // TODO(HiDeoo) EditLink
     // TODO(HiDeoo) Pagination
@@ -128,15 +126,15 @@ import type { Props } from '@astrojs/starlight/props'
         const blockOffset = typeof override.offset === 'number' ? override.offset : (override.offset?.block ?? 0)
         const inlineOffset = typeof override.offset === 'number' ? override.offset : (override.offset?.inline ?? 0)
 
-        this.#highlight.style.top = `${rect.top - blockOffset}px`
-        this.#highlight.style.left = `${rect.left - inlineOffset}px`
+        this.#highlight.style.top = `${rect.top + window.scrollY - blockOffset}px`
+        this.#highlight.style.left = `${rect.left + window.scrollX - inlineOffset}px`
         this.#highlight.style.width = `${rect.width + inlineOffset * 2}px`
         this.#highlight.style.height = `${rect.height + blockOffset * 2}px`
         this.#highlight.style.display = 'block'
 
         // TODO(HiDeoo) position to handle viewport/current position
-        this.#tooltip.style.top = `${rect.top + rect.height + blockOffset}px`
-        this.#tooltip.style.left = `${rect.left - inlineOffset}px`
+        this.#tooltip.style.top = `${rect.top + window.scrollY + rect.height + blockOffset}px`
+        this.#tooltip.style.left = `${rect.left + window.scrollX - inlineOffset}px`
         this.#tooltip.style.display = 'block'
         this.#tooltip.textContent = override.name
       }
