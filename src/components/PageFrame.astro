@@ -1,14 +1,13 @@
 ---
 import Default from '@astrojs/starlight/components/PageFrame.astro'
 import type { Props } from '@astrojs/starlight/props'
-
-// TODO(HiDeoo) click = link to doc for specific override
-// TODO(HiDeoo) click = copy name?
 ---
 
 <starlight-override-map>
   <div class="starlight-override-map-toolbar">
-    <label><input type="checkbox" />Enabled</label>
+    <label><input name="enabled" type="checkbox" />Enabled</label>
+    <label><input name="open" type="checkbox" checked />Open</label>
+    <label><input name="copy" type="checkbox" checked />Copy</label>
   </div>
 </starlight-override-map>
 <Default {...Astro.props}><slot slot="header" name="header" /><slot /><slot slot="sidebar" name="sidebar" /></Default>
@@ -79,14 +78,14 @@ import type { Props } from '@astrojs/starlight/props'
     { name: 'MobileMenuToggle', selector: 'button[aria-controls="starlight__sidebar"]', offset: 10 },
     { name: 'TwoColumnContent', selector: '.lg\\:sl-flex' },
     // Header
-    { name: 'Header', selector: 'header.header', offset: -2 },
-    { name: 'SiteTitle', selector: '.site-title', offset: { inline: 8 } },
+    { name: 'Header', selector: 'header.header', offset: -2, id: 'header-1' },
+    { name: 'SiteTitle', selector: '.site-title', offset: { inline: 8 }, id: 'sitetitle-1' },
     { name: 'Search', selector: 'site-search button', offset: 6 },
     { name: 'SocialIcons', selector: '.social-icons', offset: { block: 4, inline: [16, 0] } },
     { name: 'ThemeSelect', selector: 'starlight-theme-select label', offset: { inline: 8 } },
     { name: 'LanguageSelect', selector: 'starlight-lang-select label', offset: { inline: 8 } },
     // Global Sidebar
-    { name: 'Sidebar', selector: '.sidebar-content', offset: -2 },
+    { name: 'Sidebar', selector: '.sidebar-content', offset: -2, id: 'sidebar-1' },
     { name: 'MobileMenuFooter', selector: '.mobile-preferences', offset: { inline: 6 } },
     // Page Sidebar
     { name: 'PageSidebar', selector: '.right-sidebar', offset: { block: [-113, -2] } },
@@ -101,17 +100,21 @@ import type { Props } from '@astrojs/starlight/props'
     { name: 'Hero', selector: '.hero', offset: { block: 4, inline: 8 } },
     { name: 'MarkdownContent', selector: '.sl-markdown-content', offset: 12 },
     // Footer
-    { name: 'Footer', selector: 'footer', offset: 8 },
-    { name: 'LastUpdated', selector: 'footer .meta > p', offset: 8 },
+    { name: 'Footer', selector: 'footer', offset: 8, id: 'footer-1' },
+    { name: 'LastUpdated', selector: 'footer .meta > p', offset: 8, id: 'lastupdated-1' },
     { name: 'EditLink', selector: 'footer .meta > a', offset: 8 },
-    { name: 'Pagination', selector: '.pagination-links', offset: 8 },
+    { name: 'Pagination', selector: '.pagination-links', offset: 8, id: 'pagination-1' },
   ]
 
   customElements.define(
     'starlight-override-map',
     class StarlightOverrideMap extends HTMLElement {
-      // FIXME(HiDeoo) switch to disabled by default
-      #enabled = true
+      #enabled = false
+      #copyNameOnClick = true
+      #openDocumentationOnClick = true
+
+      #currentOverride: Override | undefined
+
       #highlight: HTMLDivElement | undefined
       #tooltip: HTMLDivElement | undefined
 
@@ -121,9 +124,19 @@ import type { Props } from '@astrojs/starlight/props'
         this.#createOverlay()
         this.#registerListeners()
 
-        this.querySelector('input')?.addEventListener('change', (event) => {
+        this.querySelector('input[name="enabled"]')?.addEventListener('change', (event) => {
           if (!(event.target instanceof HTMLInputElement)) return
           this.#enabled = event.target.checked
+        })
+
+        this.querySelector('input[name="copy"]')?.addEventListener('change', (event) => {
+          if (!(event.target instanceof HTMLInputElement)) return
+          this.#copyNameOnClick = event.target.checked
+        })
+
+        this.querySelector('input[name="open"]')?.addEventListener('change', (event) => {
+          if (!(event.target instanceof HTMLInputElement)) return
+          this.#openDocumentationOnClick = event.target.checked
         })
       }
 
@@ -144,6 +157,9 @@ import type { Props } from '@astrojs/starlight/props'
             }
           }
         }
+
+        document.addEventListener('click', this.#handleClick, { capture: true })
+        document.addEventListener('scroll', () => this.#hideOverlay())
       }
 
       #createOverlay() {
@@ -170,6 +186,9 @@ import type { Props } from '@astrojs/starlight/props'
       #showOverlay(override: Override, element: Element) {
         if (!this.#enabled) return
         if (!this.#highlight || !this.#tooltip) return
+
+        this.#currentOverride = override
+
         const rect = element.getBoundingClientRect()
         const topOffset = this.#getOffsetValue(override.offset, 'top')
         const bottomOffset = this.#getOffsetValue(override.offset, 'bottom')
@@ -207,6 +226,8 @@ import type { Props } from '@astrojs/starlight/props'
       }
 
       #hideOverlay() {
+        this.#currentOverride = undefined
+
         if (!this.#tooltip || !this.#highlight) return
 
         this.#highlight.style.display = 'none'
@@ -224,10 +245,32 @@ import type { Props } from '@astrojs/starlight/props'
           ? offset[logicalDirection]
           : (offset[logicalDirection]?.[directionIndex] ?? 0)
       }
+
+      #handleClick = (event: MouseEvent) => {
+        if (!this.#enabled || !this.#currentOverride) return
+        if (!this.#copyNameOnClick && !this.#openDocumentationOnClick) return
+
+        event.preventDefault()
+        event.stopPropagation()
+
+        if (this.#copyNameOnClick) {
+          try {
+            navigator.clipboard.writeText(this.#currentOverride.name)
+          } catch {
+            // Ignore copy errors.
+          }
+        }
+
+        if (this.#openDocumentationOnClick) {
+          window.location.href = `https://starlight.astro.build/reference/overrides/#${this.#currentOverride.id ?? this.#currentOverride.name.toLowerCase()}`
+        }
+      }
     },
   )
 
   interface Override {
+    // Custom Starlight documentation heading ID when it's different from the component name lowercase.
+    id?: string
     name: string
     offset?: Offset
     selector: string
