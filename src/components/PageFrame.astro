@@ -14,8 +14,13 @@ import type { Props } from '@astrojs/starlight/props'
 
 <style is:global>
   :root {
+    --starlight-overrides-map-accent-color: hsl(347 77% 50%);
+    --starlight-overrides-map-toolbar-bg-color: hsl(343 80% 35%);
     --starlight-overrides-map-toolbar-height: 3rem;
-    --starlight-overrides-map-accent-color: hsl(343 80% 35%);
+  }
+
+  :root[data-theme='light'] {
+    --starlight-override-map-accent-color: hsl(345 83% 41%);
   }
 
   header.header {
@@ -56,7 +61,7 @@ import type { Props } from '@astrojs/starlight/props'
 <style>
   .starlight-overrides-map-toolbar {
     align-items: center;
-    background-color: var(--starlight-overrides-map-accent-color);
+    background-color: var(--starlight-overrides-map-toolbar-bg-color);
     color: white;
     display: flex;
     gap: 0.75rem;
