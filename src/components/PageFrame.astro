@@ -1,13 +1,15 @@
 ---
 import Default from '@astrojs/starlight/components/PageFrame.astro'
 import type { Props } from '@astrojs/starlight/props'
+
+// TODO(HiDeoo) responsive controls
 ---
 
 <starlight-override-map>
   <div class="starlight-override-map-toolbar">
     <label><input name="enabled" type="checkbox" />Enabled</label>
-    <label><input name="open" type="checkbox" checked />Open</label>
-    <label><input name="copy" type="checkbox" checked />Copy</label>
+    <label><input name="open" type="checkbox" checked />Open documentation on click</label>
+    <label><input name="copy" type="checkbox" checked />Copy override name on click</label>
   </div>
 </starlight-override-map>
 <Default {...Astro.props}><slot slot="header" name="header" /><slot /><slot slot="sidebar" name="sidebar" /></Default>
@@ -61,11 +63,21 @@ import type { Props } from '@astrojs/starlight/props'
     background-color: var(--starlight-override-map-accent-color);
     color: white;
     display: flex;
+    gap: 0.75rem;
     height: var(--starlight-override-map-toolbar-height);
     inset-inline: 0;
     padding-inline: 1.5rem;
     position: fixed;
     z-index: 90;
+  }
+
+  label {
+    display: flex;
+    gap: 0.25rem;
+  }
+
+  input {
+    accent-color: var(--sl-color-accent);
   }
 </style>
 
@@ -109,35 +121,55 @@ import type { Props } from '@astrojs/starlight/props'
   customElements.define(
     'starlight-override-map',
     class StarlightOverrideMap extends HTMLElement {
-      #enabled = false
-      #copyNameOnClick = true
-      #openDocumentationOnClick = true
-
+      #options: Options = { enabled: false, openDocumentationOnClick: true, copyNameOnClick: true }
       #currentOverride: Override | undefined
-
       #highlight: HTMLDivElement | undefined
       #tooltip: HTMLDivElement | undefined
 
       constructor() {
         super()
 
+        this.#restoreOptions()
         this.#createOverlay()
         this.#registerListeners()
 
         this.querySelector('input[name="enabled"]')?.addEventListener('change', (event) => {
           if (!(event.target instanceof HTMLInputElement)) return
-          this.#enabled = event.target.checked
+          this.#saveOption('enabled', event.target.checked)
         })
 
         this.querySelector('input[name="copy"]')?.addEventListener('change', (event) => {
           if (!(event.target instanceof HTMLInputElement)) return
-          this.#copyNameOnClick = event.target.checked
+          this.#saveOption('copyNameOnClick', event.target.checked)
         })
 
         this.querySelector('input[name="open"]')?.addEventListener('change', (event) => {
           if (!(event.target instanceof HTMLInputElement)) return
-          this.#openDocumentationOnClick = event.target.checked
+          this.#saveOption('openDocumentationOnClick', event.target.checked)
         })
+      }
+
+      #saveOption(name: keyof Options, value: boolean) {
+        this.#options[name] = value
+        sessionStorage.setItem('starlight-override-map-options', JSON.stringify(this.#options))
+      }
+
+      #restoreOptions() {
+        const savedOptions = sessionStorage.getItem('starlight-override-map-options')
+
+        if (savedOptions) {
+          try {
+            this.#options = JSON.parse(savedOptions)
+
+            /* eslint-disable @typescript-eslint/no-non-null-assertion */
+            this.querySelector<HTMLInputElement>('input[name="enabled"]')!.checked = this.#options.enabled
+            this.querySelector<HTMLInputElement>('input[name="open"]')!.checked = this.#options.openDocumentationOnClick
+            this.querySelector<HTMLInputElement>('input[name="copy"]')!.checked = this.#options.copyNameOnClick
+            /* eslint-enable @typescript-eslint/no-non-null-assertion */
+          } catch {
+            // Ignore invalid JSON.
+          }
+        }
       }
 
       #registerListeners() {
@@ -184,7 +216,7 @@ import type { Props } from '@astrojs/starlight/props'
       }
 
       #showOverlay(override: Override, element: Element) {
-        if (!this.#enabled) return
+        if (!this.#options.enabled) return
         if (!this.#highlight || !this.#tooltip) return
 
         this.#currentOverride = override
@@ -247,21 +279,30 @@ import type { Props } from '@astrojs/starlight/props'
       }
 
       #handleClick = (event: MouseEvent) => {
-        if (!this.#enabled || !this.#currentOverride) return
-        if (!this.#copyNameOnClick && !this.#openDocumentationOnClick) return
+        if (!this.#options.enabled || !this.#currentOverride) return
+        if (!this.#options.copyNameOnClick && !this.#options.openDocumentationOnClick) return
 
         event.preventDefault()
         event.stopPropagation()
 
-        if (this.#copyNameOnClick) {
+        if (this.#options.copyNameOnClick) {
           try {
             navigator.clipboard.writeText(this.#currentOverride.name)
+
+            if (!this.#options.openDocumentationOnClick && this.#tooltip) {
+              this.#tooltip.textContent = 'Copied!'
+              setTimeout(() => {
+                if (this.#tooltip && this.#currentOverride) {
+                  this.#tooltip.textContent = this.#currentOverride.name
+                }
+              }, 1000)
+            }
           } catch {
             // Ignore copy errors.
           }
         }
 
-        if (this.#openDocumentationOnClick) {
+        if (this.#options.openDocumentationOnClick) {
           window.location.href = `https://starlight.astro.build/reference/overrides/#${this.#currentOverride.id ?? this.#currentOverride.name.toLowerCase()}`
         }
       }
@@ -283,4 +324,10 @@ import type { Props } from '@astrojs/starlight/props'
         block?: number | [top: number, bottom: number]
         inline?: number | [left: number, right: number]
       }
+
+  interface Options {
+    enabled: boolean
+    openDocumentationOnClick: boolean
+    copyNameOnClick: boolean
+  }
 </script>
