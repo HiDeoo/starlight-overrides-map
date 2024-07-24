@@ -1,0 +1,60 @@
+{
+  "name": "starlight-overrides-map",
+  "version": "0.0.1",
+  "license": "MIT",
+  "description": "An interactive map of Starlight component overrides.",
+  "author": "HiDeoo <github@hideoo.dev> (https://hideoo.dev)",
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro",
+    "lint": "prettier -c --cache . && eslint . --cache --max-warnings=0 && astro check",
+    "prepare": "husky"
+  },
+  "dependencies": {
+    "@astrojs/check": "^0.8.2",
+    "@astrojs/starlight": "^0.25.1",
+    "astro": "^4.12.2",
+    "sharp": "^0.32.5"
+  },
+  "devDependencies": {
+    "@hideoo/eslint-config": "^3.0.1",
+    "@hideoo/prettier-config": "^2.0.0",
+    "@hideoo/tsconfig": "^2.0.1",
+    "eslint": "^8.57.0",
+    "husky": "^9.1.1",
+    "lint-staged": "^15.2.7",
+    "prettier": "^3.3.3",
+    "prettier-plugin-astro": "^0.14.1",
+    "typescript": "^5.5.4"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "packageManager": "pnpm@9.6.0",
+  "private": true,
+  "sideEffects": false,
+  "keywords": [
+    "starlight",
+    "component",
+    "overrides",
+    "map",
+    "documentation",
+    "astro"
+  ],
+  "homepage": "https://github.com/HiDeoo/starlight-overrides-map",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/HiDeoo/starlight-overrides-map.git"
+  },
+  "bugs": "https://github.com/HiDeoo/starlight-overrides-map/issues",
+  "lint-staged": {
+    "*": [
+      "prettier -w -u --cache",
+      "eslint --cache --no-warn-ignored --max-warnings=0"
+    ]
+  }
+}

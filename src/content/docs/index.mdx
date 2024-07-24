@@ -1,0 +1,34 @@
+---
+title: Starlight Overrides Map
+description: An interactive map of Starlight component overrides.
+head:
+  - tag: title
+    content: Starlight Overrides Map
+template: splash
+editUrl: false
+lastUpdated: false
+hero:
+  tagline: An interactive map of Starlight component overrides.
+  image:
+    html: '🗺️'
+  actions:
+    - text: Example Page
+      link: /example/
+      icon: right-arrow
+      variant: primary
+---
+
+import { Card, CardGrid } from '@astrojs/starlight/components'
+
+## Next steps
+
+<CardGrid stagger>
+  <Card title="Read the docs" icon="open-book">
+    Learn more about [Overriding
+    Components](https://starlight.astro.build/guides/overriding-components/).
+  </Card>
+  <Card title="Overrides components" icon="pencil">
+    Check the [Overrides
+    Reference](https://starlight.astro.build/reference/overrides/).
+  </Card>
+</CardGrid>

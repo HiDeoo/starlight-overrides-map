@@ -1,0 +1,9 @@
+---
+import Default from '@astrojs/starlight/components/FallbackContentNotice.astro'
+import type { Props } from '@astrojs/starlight/props'
+
+const { labels } = Astro.props
+---
+
+<Default {...Astro.props} labels={{ ...labels, 'i18n.untranslatedContent': labels['page.draft'] }}><slot /></Default>
+<Default {...Astro.props}><slot /></Default>

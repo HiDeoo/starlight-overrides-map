@@ -1,0 +1,342 @@
+---
+import Default from '@astrojs/starlight/components/PageFrame.astro'
+import type { Props } from '@astrojs/starlight/props'
+---
+
+<starlight-overrides-map>
+  <div class="starlight-overrides-map-toolbar">
+    <label><input name="enabled" type="checkbox" />Enabled</label>
+    <label><input name="open" type="checkbox" checked />Open documentation on click</label>
+    <label><input name="copy" type="checkbox" />Copy override name on click</label>
+  </div>
+</starlight-overrides-map>
+<Default {...Astro.props}><slot slot="header" name="header" /><slot /><slot slot="sidebar" name="sidebar" /></Default>
+
+<style is:global>
+  :root {
+    --starlight-overrides-map-toolbar-height: 3rem;
+    --starlight-overrides-map-accent-color: hsl(343 80% 35%);
+  }
+
+  header.header {
+    inset-block-start: var(--starlight-overrides-map-toolbar-height);
+  }
+
+  .sidebar-pane {
+    inset-block-start: calc(var(--sl-nav-height) + var(--starlight-overrides-map-toolbar-height));
+  }
+
+  .main-frame {
+    padding-top: calc(
+      var(--sl-nav-height) + var(--sl-mobile-toc-height) + var(--starlight-overrides-map-toolbar-height)
+    );
+  }
+
+  @media (min-width: 72rem) {
+    aside .right-sidebar {
+      padding-top: calc(var(--sl-nav-height) + var(--starlight-overrides-map-toolbar-height));
+    }
+  }
+
+  mobile-starlight-toc nav {
+    top: calc(var(--sl-nav-height) - 1px + var(--starlight-overrides-map-toolbar-height));
+  }
+
+  starlight-menu-button button {
+    top: calc(
+      ((var(--sl-nav-height) - var(--sl-menu-button-size)) / 2) + var(--starlight-overrides-map-toolbar-height)
+    );
+  }
+
+  body > a[href='#_top'] {
+    top: calc(0.75rem + var(--starlight-overrides-map-toolbar-height));
+  }
+</style>
+
+<style>
+  .starlight-overrides-map-toolbar {
+    align-items: center;
+    background-color: var(--starlight-overrides-map-accent-color);
+    color: white;
+    display: flex;
+    gap: 0.75rem;
+    height: var(--starlight-overrides-map-toolbar-height);
+    inset-inline: 0;
+    padding-inline: 1.5rem;
+    position: fixed;
+    z-index: 90;
+  }
+
+  @media (max-width: 50rem) {
+    .starlight-overrides-map-toolbar {
+      padding-inline: 1rem;
+    }
+  }
+
+  label {
+    align-items: center;
+    display: flex;
+    gap: 0.25rem;
+  }
+
+  input {
+    accent-color: var(--sl-color-accent);
+  }
+
+  @media (max-width: 40rem) {
+    label:not(:first-child) {
+      display: none;
+    }
+  }
+</style>
+
+<script>
+  const overrides: Override[] = [
+    // Accessibility
+    { name: 'SkipLink', selector: "body > a[href='#_top']", offset: 4 },
+    // Layout
+    { name: 'PageFrame', selector: '.page', offset: { block: [-50, -2], inline: -2 } },
+    { name: 'MobileMenuToggle', selector: 'button[aria-controls="starlight__sidebar"]', offset: 10 },
+    { name: 'TwoColumnContent', selector: '.lg\\:sl-flex' },
+    // Header
+    { name: 'Header', selector: 'header.header', offset: -2, id: 'header-1' },
+    { name: 'SiteTitle', selector: '.site-title', offset: { inline: 8 }, id: 'sitetitle-1' },
+    { name: 'Search', selector: 'site-search button', offset: 6 },
+    { name: 'SocialIcons', selector: '.social-icons', offset: { block: 4, inline: [16, 0] } },
+    { name: 'ThemeSelect', selector: 'starlight-theme-select label', offset: { inline: 8 } },
+    { name: 'LanguageSelect', selector: 'starlight-lang-select label', offset: { inline: 8 } },
+    // Global Sidebar
+    { name: 'Sidebar', selector: '.sidebar-content', offset: -2, id: 'sidebar-1' },
+    { name: 'MobileMenuFooter', selector: '.mobile-preferences', offset: { inline: 6 } },
+    // Page Sidebar
+    { name: 'PageSidebar', selector: '.right-sidebar', offset: { block: [-113, -2] } },
+    { name: 'TableOfContents', selector: 'starlight-toc', offset: 8 },
+    { name: 'MobileTableOfContents', selector: 'mobile-starlight-toc nav' },
+    // Content
+    { name: 'Banner', selector: '.sl-banner' },
+    { name: 'ContentPanel', selector: '.content-panel' },
+    { name: 'PageTitle', selector: 'h1#_top', offset: { inline: 8 } },
+    { name: 'DraftContentNotice', selector: 'h1#_top + p', offset: 4 },
+    { name: 'FallbackContentNotice', selector: 'h1#_top + p + p', offset: 4 },
+    { name: 'Hero', selector: '.hero', offset: { block: 4, inline: 8 } },
+    { name: 'MarkdownContent', selector: '.sl-markdown-content', offset: 12 },
+    // Footer
+    { name: 'Footer', selector: 'footer', offset: 8, id: 'footer-1' },
+    { name: 'LastUpdated', selector: 'footer .meta > p', offset: 8, id: 'lastupdated-1' },
+    { name: 'EditLink', selector: 'footer .meta > a', offset: 8 },
+    { name: 'Pagination', selector: '.pagination-links', offset: 8, id: 'pagination-1' },
+  ]
+
+  customElements.define(
+    'starlight-overrides-map',
+    class StarlightOverridesMap extends HTMLElement {
+      #options: Options = { enabled: false, openDocumentationOnClick: true, copyNameOnClick: false }
+      #currentOverride: Override | undefined
+      #highlight: HTMLDivElement | undefined
+      #tooltip: HTMLDivElement | undefined
+
+      constructor() {
+        super()
+
+        this.#restoreOptions()
+        this.#createOverlay()
+        this.#registerListeners()
+
+        this.querySelector('input[name="enabled"]')?.addEventListener('change', (event) => {
+          if (!(event.target instanceof HTMLInputElement)) return
+          this.#saveOption('enabled', event.target.checked)
+        })
+
+        this.querySelector('input[name="copy"]')?.addEventListener('change', (event) => {
+          if (!(event.target instanceof HTMLInputElement)) return
+          this.#saveOption('copyNameOnClick', event.target.checked)
+        })
+
+        this.querySelector('input[name="open"]')?.addEventListener('change', (event) => {
+          if (!(event.target instanceof HTMLInputElement)) return
+          this.#saveOption('openDocumentationOnClick', event.target.checked)
+        })
+      }
+
+      #saveOption(name: keyof Options, value: boolean) {
+        this.#options[name] = value
+        sessionStorage.setItem('starlight-overrides-map-options', JSON.stringify(this.#options))
+      }
+
+      #restoreOptions() {
+        const savedOptions = sessionStorage.getItem('starlight-overrides-map-options')
+
+        if (savedOptions) {
+          try {
+            this.#options = JSON.parse(savedOptions)
+
+            /* eslint-disable @typescript-eslint/no-non-null-assertion */
+            this.querySelector<HTMLInputElement>('input[name="enabled"]')!.checked = this.#options.enabled
+            this.querySelector<HTMLInputElement>('input[name="open"]')!.checked = this.#options.openDocumentationOnClick
+            this.querySelector<HTMLInputElement>('input[name="copy"]')!.checked = this.#options.copyNameOnClick
+            /* eslint-enable @typescript-eslint/no-non-null-assertion */
+          } catch {
+            // Ignore invalid JSON.
+          }
+        }
+      }
+
+      #registerListeners() {
+        const inEvents = ['focus', 'mouseover'] as const
+        const outEvents = ['blur', 'mouseout'] as const
+
+        for (const override of overrides) {
+          const elements = document.querySelectorAll(override.selector)
+
+          for (const element of elements) {
+            for (const event of inEvents) {
+              element.addEventListener(event, () => this.#showOverlay(override, element), { capture: true })
+            }
+
+            for (const event of outEvents) {
+              element.addEventListener(event, () => this.#hideOverlay())
+            }
+          }
+        }
+
+        document.addEventListener('click', this.#handleClick, { capture: true })
+        document.addEventListener('scroll', () => this.#hideOverlay())
+      }
+
+      #createOverlay() {
+        this.#highlight = document.createElement('div')
+        this.#highlight.style.border = `2px dashed var(--starlight-overrides-map-accent-color)`
+        this.#highlight.style.display = 'none'
+        this.#highlight.style.pointerEvents = 'none'
+        this.#highlight.style.position = 'absolute'
+        this.#highlight.style.zIndex = '100'
+
+        this.#tooltip = document.createElement('div')
+        this.#tooltip.style.backgroundColor = 'var(--starlight-overrides-map-accent-color)'
+        this.#tooltip.style.color = 'white'
+        this.#tooltip.style.display = 'none'
+        this.#tooltip.style.padding = '0.375rem 0.625rem'
+        this.#tooltip.style.pointerEvents = 'none'
+        this.#tooltip.style.position = 'absolute'
+        this.#tooltip.style.zIndex = '101'
+
+        document.body.append(this.#highlight)
+        document.body.append(this.#tooltip)
+      }
+
+      #showOverlay(override: Override, element: Element) {
+        if (!this.#options.enabled) return
+        if (!this.#highlight || !this.#tooltip) return
+
+        this.#currentOverride = override
+
+        const rect = element.getBoundingClientRect()
+        const topOffset = this.#getOffsetValue(override.offset, 'top')
+        const bottomOffset = this.#getOffsetValue(override.offset, 'bottom')
+        const leftOffset = this.#getOffsetValue(override.offset, 'left')
+        const rightOffset = this.#getOffsetValue(override.offset, 'right')
+        // This is a bit fragile so probably a good refactor candidate.
+        const isTooltipInside = rect.height < 100
+
+        this.#highlight.style.top = `${rect.top + window.scrollY - topOffset}px`
+        this.#highlight.style.left = `${rect.left + window.scrollX - leftOffset}px`
+        this.#highlight.style.width = `${rect.width + leftOffset + rightOffset}px`
+        this.#highlight.style.height = `${rect.height + topOffset + bottomOffset}px`
+        this.#highlight.style.display = 'block'
+
+        this.#tooltip.style.top = isTooltipInside
+          ? `${rect.top + window.scrollY + rect.height + topOffset - 2}px`
+          : `${rect.top + window.scrollY - topOffset}px`
+        this.#tooltip.style.left = `${rect.left + window.scrollX - leftOffset}px`
+        this.#tooltip.style.right = 'auto'
+        this.#tooltip.style.display = 'block'
+        this.#tooltip.textContent = override.name
+
+        const tooltipRect = this.#tooltip.getBoundingClientRect()
+
+        if (tooltipRect.right > window.innerWidth) {
+          this.#tooltip.style.left = 'auto'
+          this.#tooltip.style.right = `${window.innerWidth - rect.right - rightOffset}px`
+        }
+
+        if (tooltipRect.bottom > window.innerHeight) {
+          this.#tooltip.style.top = isTooltipInside
+            ? `${rect.top + window.scrollY - tooltipRect.height - topOffset + 2}px`
+            : `${rect.top + window.scrollY - tooltipRect.height - topOffset}px`
+        }
+      }
+
+      #hideOverlay() {
+        this.#currentOverride = undefined
+
+        if (!this.#tooltip || !this.#highlight) return
+
+        this.#highlight.style.display = 'none'
+        this.#tooltip.style.display = 'none'
+      }
+
+      #getOffsetValue(offset: Offset | undefined, direction: 'top' | 'bottom' | 'left' | 'right') {
+        if (offset === undefined) return 0
+        if (typeof offset === 'number') return offset
+
+        const logicalDirection = direction === 'top' || direction === 'bottom' ? 'block' : 'inline'
+        const directionIndex = direction === 'top' || direction === 'left' ? 0 : 1
+
+        return typeof offset[logicalDirection] === 'number'
+          ? offset[logicalDirection]
+          : (offset[logicalDirection]?.[directionIndex] ?? 0)
+      }
+
+      #handleClick = (event: MouseEvent) => {
+        if (!this.#options.enabled || !this.#currentOverride) return
+        if (!this.#options.copyNameOnClick && !this.#options.openDocumentationOnClick) return
+
+        event.preventDefault()
+        event.stopPropagation()
+
+        if (this.#options.copyNameOnClick) {
+          try {
+            navigator.clipboard.writeText(this.#currentOverride.name)
+
+            if (!this.#options.openDocumentationOnClick && this.#tooltip) {
+              this.#tooltip.textContent = 'Copied!'
+              setTimeout(() => {
+                if (this.#tooltip && this.#currentOverride) {
+                  this.#tooltip.textContent = this.#currentOverride.name
+                }
+              }, 1000)
+            }
+          } catch {
+            // Ignore copy errors.
+          }
+        }
+
+        if (this.#options.openDocumentationOnClick) {
+          window.location.href = `https://starlight.astro.build/reference/overrides/#${this.#currentOverride.id ?? this.#currentOverride.name.toLowerCase()}`
+        }
+      }
+    },
+  )
+
+  interface Override {
+    // Custom Starlight documentation heading ID when it's different from the component name lowercase.
+    id?: string
+    name: string
+    offset?: Offset
+    selector: string
+  }
+
+  // In pixels
+  type Offset =
+    | number
+    | {
+        block?: number | [top: number, bottom: number]
+        inline?: number | [left: number, right: number]
+      }
+
+  interface Options {
+    enabled: boolean
+    openDocumentationOnClick: boolean
+    copyNameOnClick: boolean
+  }
+</script>
