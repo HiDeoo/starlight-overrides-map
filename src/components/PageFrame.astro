@@ -1,8 +1,6 @@
 ---
 import Default from '@astrojs/starlight/components/PageFrame.astro'
 import type { Props } from '@astrojs/starlight/props'
-
-// TODO(HiDeoo) responsive controls
 ---
 
 <starlight-override-map>
@@ -71,6 +69,12 @@ import type { Props } from '@astrojs/starlight/props'
     z-index: 90;
   }
 
+  @media (max-width: 50rem) {
+    .starlight-override-map-toolbar {
+      padding-inline: 1rem;
+    }
+  }
+
   label {
     display: flex;
     gap: 0.25rem;
@@ -78,6 +82,12 @@ import type { Props } from '@astrojs/starlight/props'
 
   input {
     accent-color: var(--sl-color-accent);
+  }
+
+  @media (max-width: 40rem) {
+    label:not(:first-child) {
+      display: none;
+    }
   }
 </style>
 
