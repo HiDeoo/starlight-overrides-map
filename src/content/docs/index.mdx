@@ -1,19 +1,19 @@
 ---
-title: Welcome to Starlight
-description: Get started building your docs site with Starlight.
+title: Starlight Overrides Map
+description: Starlight theme inspired by the Visual Studio Code Vitesse theme.
+head:
+  - tag: title
+    content: Starlight Overrides Map
 template: splash
 editUrl: false
 lastUpdated: false
 hero:
-  tagline: Congrats on setting up a new Starlight project!
+  tagline: An interactive map of Starlight component overrides.
   actions:
-    - text: Example Guide
+    - text: Example Page
       link: /example/
       icon: right-arrow
       variant: primary
-    - text: Read the Starlight docs
-      link: https://starlight.astro.build
-      icon: external
 ---
 
 import { Card, CardGrid } from '@astrojs/starlight/components'
@@ -21,16 +21,12 @@ import { Card, CardGrid } from '@astrojs/starlight/components'
 ## Next steps
 
 <CardGrid stagger>
-  <Card title="Update content" icon="pencil">
-    Edit `src/content/docs/index.mdx` to see this page change.
-  </Card>
-  <Card title="Add new content" icon="add-document">
-    Add Markdown or MDX files to `src/content/docs` to create new pages.
-  </Card>
-  <Card title="Configure your site" icon="setting">
-    Edit your `sidebar` and other config in `astro.config.mjs`.
-  </Card>
   <Card title="Read the docs" icon="open-book">
-    Learn more in [the Starlight Docs](https://starlight.astro.build/).
+    Learn more about [Overriding
+    Components](https://starlight.astro.build/guides/overriding-components/).
+  </Card>
+  <Card title="Overrides components" icon="pencil">
+    Check the [Overrides
+    Reference](https://starlight.astro.build/reference/overrides/).
   </Card>
 </CardGrid>

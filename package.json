@@ -1,5 +1,5 @@
 {
-  "name": "starlight-override-map",
+  "name": "starlight-overrides-map",
   "version": "0.0.1",
   "license": "MIT",
   "description": "// TODO(HiDeoo)",
@@ -40,12 +40,12 @@
   "keywords": [
     "// TODO(HiDeoo)"
   ],
-  "homepage": "https://github.com/HiDeoo/starlight-override-map",
+  "homepage": "https://github.com/HiDeoo/starlight-overrides-map",
   "repository": {
     "type": "git",
-    "url": "https://github.com/HiDeoo/starlight-override-map.git"
+    "url": "https://github.com/HiDeoo/starlight-overrides-map.git"
   },
-  "bugs": "https://github.com/HiDeoo/starlight-override-map/issues",
+  "bugs": "https://github.com/HiDeoo/starlight-overrides-map/issues",
   "lint-staged": {
     "*": [
       "prettier -w -u --cache",

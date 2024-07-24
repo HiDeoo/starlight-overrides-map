@@ -3,62 +3,64 @@ import Default from '@astrojs/starlight/components/PageFrame.astro'
 import type { Props } from '@astrojs/starlight/props'
 ---
 
-<starlight-override-map>
-  <div class="starlight-override-map-toolbar">
+<starlight-overrides-map>
+  <div class="starlight-overrides-map-toolbar">
     <label><input name="enabled" type="checkbox" />Enabled</label>
     <label><input name="open" type="checkbox" checked />Open documentation on click</label>
     <label><input name="copy" type="checkbox" checked />Copy override name on click</label>
   </div>
-</starlight-override-map>
+</starlight-overrides-map>
 <Default {...Astro.props}><slot slot="header" name="header" /><slot /><slot slot="sidebar" name="sidebar" /></Default>
 
 <style is:global>
   :root {
-    --starlight-override-map-toolbar-height: 3rem;
-    --starlight-override-map-accent-color: hsl(343 80% 35%);
+    --starlight-overrides-map-toolbar-height: 3rem;
+    --starlight-overrides-map-accent-color: hsl(343 80% 35%);
   }
 
   header.header {
-    inset-block-start: var(--starlight-override-map-toolbar-height);
+    inset-block-start: var(--starlight-overrides-map-toolbar-height);
   }
 
   .sidebar-pane {
-    inset-block-start: calc(var(--sl-nav-height) + var(--starlight-override-map-toolbar-height));
+    inset-block-start: calc(var(--sl-nav-height) + var(--starlight-overrides-map-toolbar-height));
   }
 
   .main-frame {
     padding-top: calc(
-      var(--sl-nav-height) + var(--sl-mobile-toc-height) + var(--starlight-override-map-toolbar-height)
+      var(--sl-nav-height) + var(--sl-mobile-toc-height) + var(--starlight-overrides-map-toolbar-height)
     );
   }
 
   @media (min-width: 72rem) {
     aside .right-sidebar {
-      padding-top: calc(var(--sl-nav-height) + var(--starlight-override-map-toolbar-height));
+      padding-top: calc(var(--sl-nav-height) + var(--starlight-overrides-map-toolbar-height));
     }
   }
 
   mobile-starlight-toc nav {
-    top: calc(var(--sl-nav-height) - 1px + var(--starlight-override-map-toolbar-height));
+    top: calc(var(--sl-nav-height) - 1px + var(--starlight-overrides-map-toolbar-height));
   }
 
   starlight-menu-button button {
-    top: calc(((var(--sl-nav-height) - var(--sl-menu-button-size)) / 2) + var(--starlight-override-map-toolbar-height));
+    top: calc(
+      ((var(--sl-nav-height) - var(--sl-menu-button-size)) / 2) + var(--starlight-overrides-map-toolbar-height)
+    );
   }
 
   body > a[href='#_top'] {
-    top: calc(0.75rem + var(--starlight-override-map-toolbar-height));
+    top: calc(0.75rem + var(--starlight-overrides-map-toolbar-height));
   }
 </style>
 
 <style>
-  .starlight-override-map-toolbar {
+  .starlight-overrides-map-toolbar {
     align-items: center;
-    background-color: var(--starlight-override-map-accent-color);
+    background-color: var(--starlight-overrides-map-accent-color);
     color: white;
     display: flex;
     gap: 0.75rem;
-    height: var(--starlight-override-map-toolbar-height);
+    height: var(--starlight-overrides-map-toolbar-height);
     inset-inline: 0;
     padding-inline: 1.5rem;
     position: fixed;
@@ -66,7 +68,7 @@ import type { Props } from '@astrojs/starlight/props'
   }
 
   @media (max-width: 50rem) {
-    .starlight-override-map-toolbar {
+    .starlight-overrides-map-toolbar {
       padding-inline: 1rem;
     }
   }
@@ -125,8 +127,8 @@ import type { Props } from '@astrojs/starlight/props'
   ]
 
   customElements.define(
-    'starlight-override-map',
-    class StarlightOverrideMap extends HTMLElement {
+    'starlight-overrides-map',
+    class StarlightOverridesMap extends HTMLElement {
       #options: Options = { enabled: false, openDocumentationOnClick: true, copyNameOnClick: true }
       #currentOverride: Override | undefined
       #highlight: HTMLDivElement | undefined

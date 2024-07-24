@@ -11,7 +11,7 @@ export default defineConfig({
         PageFrame: './src/components/PageFrame.astro',
       },
       editLink: {
-        baseUrl: 'https://github.com/HiDeoo/starlight-override-map/edit/main/',
+        baseUrl: 'https://github.com/HiDeoo/starlight-overrides-map/edit/main/',
       },
       lastUpdated: true,
       locales: {
@@ -29,10 +29,9 @@ export default defineConfig({
         },
       ],
       social: {
-        github: 'https://github.com/HiDeoo/starlight-override-map',
+        github: 'https://github.com/HiDeoo/starlight-overrides-map',
       },
-      // TODO(HiDeoo)
-      title: 'My Docs',
+      title: 'Starlight Overrides Map',
     }),
   ],
 })
