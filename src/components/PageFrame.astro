@@ -243,6 +243,15 @@ import type { Props } from '@astrojs/starlight/props'
         // This is a bit fragile so probably a good refactor candidate.
         const isTooltipInside = rect.height < 100
 
+        if (override.name === 'PageSidebar') {
+          const mainFrameWith = document.querySelector('.main-frame > div')?.getBoundingClientRect().width
+          const mainPaneWith = document.querySelector('.main-pane')?.getBoundingClientRect().width
+
+          if (mainPaneWith && mainFrameWith) {
+            rect.width = mainFrameWith - mainPaneWith - leftOffset - rightOffset
+          }
+        }
+
         this.#highlight.style.top = `${rect.top + window.scrollY - topOffset}px`
         this.#highlight.style.left = `${rect.left + window.scrollX - leftOffset}px`
         this.#highlight.style.width = `${rect.width + leftOffset + rightOffset}px`
