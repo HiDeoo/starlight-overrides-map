@@ -10,6 +10,7 @@ export default defineConfig({
         FallbackContentNotice: './src/components/FallbackContentNotice.astro',
         PageFrame: './src/components/PageFrame.astro',
       },
+      customCss: ['./src/styles/custom.css'],
       editLink: {
         baseUrl: 'https://github.com/HiDeoo/starlight-overrides-map/edit/main/',
       },
