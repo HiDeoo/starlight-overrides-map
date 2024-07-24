@@ -1,24 +1,70 @@
 ---
-import Default from '@astrojs/starlight/components/SocialIcons.astro'
+import Default from '@astrojs/starlight/components/PageFrame.astro'
 import type { Props } from '@astrojs/starlight/props'
 
+// TODO(HiDeoo) Move to pageframe? Remove the single instance check?
+
 // TODO(HiDeoo) only certain page?
+// TODO(HiDeoo) control banner
 // TODO(HiDeoo) mobile/responsive
 // TODO(HiDeoo) click = link to doc for specific override
 // TODO(HiDeoo) click = copy name?
 // TODO(HiDeoo) click = modal containing everything with an example and everything?
 ---
 
-<starlight-override-map></starlight-override-map>
-<Default {...Astro.props}><slot /></Default>
+<starlight-override-map>
+  <div class="starlight-override-map-toolbar"></div>
+</starlight-override-map>
+<Default {...Astro.props}><slot slot="header" name="header" /><slot /><slot slot="sidebar" name="sidebar" /></Default>
 
 <style is:global>
   :root {
+    --starlight-override-map-toolbar-height: 3rem;
     --starlight-override-map-accent-color: hsl(347 77% 50%);
   }
 
   :root[data-theme='light'] {
     --starlight-override-map-accent-color: hsl(345 83% 41%);
+  }
+
+  header.header {
+    inset-block-start: var(--starlight-override-map-toolbar-height);
+  }
+
+  .sidebar-pane {
+    inset-block-start: calc(var(--sl-nav-height) + var(--starlight-override-map-toolbar-height));
+  }
+
+  .main-frame {
+    padding-top: calc(
+      var(--sl-nav-height) + var(--sl-mobile-toc-height) + var(--starlight-override-map-toolbar-height)
+    );
+  }
+
+  @media (min-width: 72rem) {
+    aside .right-sidebar {
+      padding-top: calc(var(--sl-nav-height) + var(--starlight-override-map-toolbar-height));
+    }
+  }
+
+  mobile-starlight-toc nav {
+    top: calc(var(--sl-nav-height) - 1px + var(--starlight-override-map-toolbar-height));
+  }
+
+  starlight-menu-button button {
+    top: calc(((var(--sl-nav-height) - var(--sl-menu-button-size)) / 2) + var(--starlight-override-map-toolbar-height));
+  }
+</style>
+
+<style>
+  .starlight-override-map-toolbar {
+    align-items: center;
+    background-color: red;
+    display: flex;
+    height: var(--starlight-override-map-toolbar-height);
+    inset-inline: 0;
+    position: fixed;
+    z-index: 90;
   }
 </style>
 
@@ -27,11 +73,11 @@ import type { Props } from '@astrojs/starlight/props'
     // FIXME(HiDeoo) Head
     // FIXME(HiDeoo) Accessibility
     // Layout
-    { name: 'PageFrame', selector: '.page', offset: -2 },
+    { name: 'PageFrame', selector: '.page', offset: { block: [-50, -2], inline: -2 } },
     // TODO(HiDeoo) MobileMenuToggle
     { name: 'TwoColumnContent', selector: '.lg\\:sl-flex' },
     // Header
-    { name: 'Header', selector: 'div.header', offset: { block: 8, inline: 20 } },
+    { name: 'Header', selector: 'header.header', offset: -2 },
     { name: 'SiteTitle', selector: '.site-title', offset: { inline: 8 } },
     { name: 'Search', selector: 'site-search button', offset: 6 },
     // TODO(HiDeoo) search modal?
@@ -42,7 +88,7 @@ import type { Props } from '@astrojs/starlight/props'
     { name: 'Sidebar', selector: '.sidebar-content', offset: -2 },
     // TODO(HiDeoo) MobileMenuFooter
     // Page Sidebar
-    { name: 'PageSidebar', selector: '.right-sidebar', offset: { block: -2 } },
+    { name: 'PageSidebar', selector: '.right-sidebar', offset: { block: [-50, -2] } },
     { name: 'TableOfContents', selector: 'starlight-toc', offset: 8 },
     // TODO(HiDeoo) MobileTableOfContents
     // Content
@@ -63,28 +109,22 @@ import type { Props } from '@astrojs/starlight/props'
   customElements.define(
     'starlight-override-map',
     class StarlightOverrideMap extends HTMLElement {
-      static #didRegisterListeners = false
       #highlight: HTMLDivElement | undefined
       #tooltip: HTMLDivElement | undefined
 
       constructor() {
         super()
 
-        if (!StarlightOverrideMap.#didRegisterListeners) {
-          this.#createOverlay()
-          this.#registerListeners()
-        }
+        this.#createOverlay()
+        this.#registerListeners()
       }
 
       #registerListeners() {
-        StarlightOverrideMap.#didRegisterListeners = true
-
         const inEvents = ['focus', 'mouseover'] as const
         const outEvents = ['blur', 'mouseout'] as const
 
         for (const override of overrides) {
           const elements = document.querySelectorAll(override.selector)
-          // TODO(HiDeoo) validate only 1 element (not always the case)
 
           for (const element of elements) {
             for (const event of inEvents) {
@@ -121,23 +161,24 @@ import type { Props } from '@astrojs/starlight/props'
 
       #showOverlay(override: Override, element: Element) {
         if (!this.#highlight || !this.#tooltip) return
-
         const rect = element.getBoundingClientRect()
-        const blockOffset = typeof override.offset === 'number' ? override.offset : (override.offset?.block ?? 0)
-        const inlineOffset = typeof override.offset === 'number' ? override.offset : (override.offset?.inline ?? 0)
+        const topOffset = this.#getOffsetValue(override.offset, 'top')
+        const bottomOffset = this.#getOffsetValue(override.offset, 'bottom')
+        const leftOffset = this.#getOffsetValue(override.offset, 'left')
+        const rightOffset = this.#getOffsetValue(override.offset, 'right')
         // This is probably a bit fragile so probably a good refactor candidate.
         const isTooltipInside = rect.height < 100
 
-        this.#highlight.style.top = `${rect.top + window.scrollY - blockOffset}px`
-        this.#highlight.style.left = `${rect.left + window.scrollX - inlineOffset}px`
-        this.#highlight.style.width = `${rect.width + inlineOffset * 2}px`
-        this.#highlight.style.height = `${rect.height + blockOffset * 2}px`
+        this.#highlight.style.top = `${rect.top + window.scrollY - topOffset}px`
+        this.#highlight.style.left = `${rect.left + window.scrollX - leftOffset}px`
+        this.#highlight.style.width = `${rect.width + leftOffset + rightOffset}px`
+        this.#highlight.style.height = `${rect.height + topOffset + bottomOffset}px`
         this.#highlight.style.display = 'block'
 
         this.#tooltip.style.top = isTooltipInside
-          ? `${rect.top + window.scrollY + rect.height + blockOffset - 2}px`
-          : `${rect.top + window.scrollY - blockOffset}px`
-        this.#tooltip.style.left = `${rect.left + window.scrollX - inlineOffset}px`
+          ? `${rect.top + window.scrollY + rect.height + topOffset - 2}px`
+          : `${rect.top + window.scrollY - topOffset}px`
+        this.#tooltip.style.left = `${rect.left + window.scrollX - leftOffset}px`
         this.#tooltip.style.display = 'block'
         this.#tooltip.textContent = override.name
       }
@@ -148,13 +189,32 @@ import type { Props } from '@astrojs/starlight/props'
         this.#highlight.style.display = 'none'
         this.#tooltip.style.display = 'none'
       }
+
+      #getOffsetValue(offset: Offset | undefined, direction: 'top' | 'bottom' | 'left' | 'right') {
+        if (offset === undefined) return 0
+        if (typeof offset === 'number') return offset
+
+        const logicalDirection = direction === 'top' || direction === 'bottom' ? 'block' : 'inline'
+        const directionIndex = direction === 'top' || direction === 'left' ? 0 : 1
+
+        return typeof offset[logicalDirection] === 'number'
+          ? offset[logicalDirection]
+          : (offset[logicalDirection]?.[directionIndex] ?? 0)
+      }
     },
   )
 
   interface Override {
     name: string
-    // In pixels
-    offset?: number | { block?: number; inline?: number }
+    offset?: Offset
     selector: string
   }
+
+  // In pixels
+  type Offset =
+    | number
+    | {
+        block?: number | [top: number, bottom: number]
+        inline?: number | [left: number, right: number]
+      }
 </script>
