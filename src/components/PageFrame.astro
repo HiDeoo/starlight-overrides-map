@@ -13,7 +13,9 @@ import type { Props } from '@astrojs/starlight/props'
 ---
 
 <starlight-override-map>
-  <div class="starlight-override-map-toolbar"></div>
+  <div class="starlight-override-map-toolbar">
+    <label><input type="checkbox" />Enabled</label>
+  </div>
 </starlight-override-map>
 <Default {...Astro.props}><slot slot="header" name="header" /><slot /><slot slot="sidebar" name="sidebar" /></Default>
 
@@ -54,15 +56,21 @@ import type { Props } from '@astrojs/starlight/props'
   starlight-menu-button button {
     top: calc(((var(--sl-nav-height) - var(--sl-menu-button-size)) / 2) + var(--starlight-override-map-toolbar-height));
   }
+
+  body > a[href='#_top'] {
+    top: calc(0.75rem + var(--starlight-override-map-toolbar-height));
+  }
 </style>
 
 <style>
   .starlight-override-map-toolbar {
     align-items: center;
-    background-color: red;
+    background-color: var(--starlight-override-map-accent-color);
+    color: white;
     display: flex;
     height: var(--starlight-override-map-toolbar-height);
     inset-inline: 0;
+    padding-inline: 1.5rem;
     position: fixed;
     z-index: 90;
   }
@@ -98,7 +106,7 @@ import type { Props } from '@astrojs/starlight/props'
     // TODO(HiDeoo) DraftContentNotice
     // TODO(HiDeoo) FallbackContentNotice
     // TODO(HiDeoo) Hero
-    { name: 'MarkdownContent', selector: '.sl-markdown-content', offset: 8 },
+    { name: 'MarkdownContent', selector: '.sl-markdown-content', offset: 12 },
     // Footer
     { name: 'Footer', selector: 'footer', offset: 8 },
     // TODO(HiDeoo) LastUpdated
@@ -109,6 +117,7 @@ import type { Props } from '@astrojs/starlight/props'
   customElements.define(
     'starlight-override-map',
     class StarlightOverrideMap extends HTMLElement {
+      #enabled = false
       #highlight: HTMLDivElement | undefined
       #tooltip: HTMLDivElement | undefined
 
@@ -117,6 +126,11 @@ import type { Props } from '@astrojs/starlight/props'
 
         this.#createOverlay()
         this.#registerListeners()
+
+        this.querySelector('input')?.addEventListener('change', (event) => {
+          if (!(event.target instanceof HTMLInputElement)) return
+          this.#enabled = event.target.checked
+        })
       }
 
       #registerListeners() {
@@ -160,6 +174,7 @@ import type { Props } from '@astrojs/starlight/props'
       }
 
       #showOverlay(override: Override, element: Element) {
+        if (!this.#enabled) return
         if (!this.#highlight || !this.#tooltip) return
         const rect = element.getBoundingClientRect()
         const topOffset = this.#getOffsetValue(override.offset, 'top')
