@@ -82,7 +82,7 @@ import type { Props } from '@astrojs/starlight/props'
     // FIXME(HiDeoo) Accessibility
     // Layout
     { name: 'PageFrame', selector: '.page', offset: { block: [-50, -2], inline: -2 } },
-    // TODO(HiDeoo) MobileMenuToggle
+    { name: 'MobileMenuToggle', selector: 'button[aria-controls="starlight__sidebar"]', offset: 10 },
     { name: 'TwoColumnContent', selector: '.lg\\:sl-flex' },
     // Header
     { name: 'Header', selector: 'header.header', offset: -2 },
@@ -117,7 +117,8 @@ import type { Props } from '@astrojs/starlight/props'
   customElements.define(
     'starlight-override-map',
     class StarlightOverrideMap extends HTMLElement {
-      #enabled = false
+      // FIXME(HiDeoo) switch to disabled by default
+      #enabled = true
       #highlight: HTMLDivElement | undefined
       #tooltip: HTMLDivElement | undefined
 
@@ -181,7 +182,7 @@ import type { Props } from '@astrojs/starlight/props'
         const bottomOffset = this.#getOffsetValue(override.offset, 'bottom')
         const leftOffset = this.#getOffsetValue(override.offset, 'left')
         const rightOffset = this.#getOffsetValue(override.offset, 'right')
-        // This is probably a bit fragile so probably a good refactor candidate.
+        // This is a bit fragile so probably a good refactor candidate.
         const isTooltipInside = rect.height < 100
 
         this.#highlight.style.top = `${rect.top + window.scrollY - topOffset}px`
@@ -194,8 +195,16 @@ import type { Props } from '@astrojs/starlight/props'
           ? `${rect.top + window.scrollY + rect.height + topOffset - 2}px`
           : `${rect.top + window.scrollY - topOffset}px`
         this.#tooltip.style.left = `${rect.left + window.scrollX - leftOffset}px`
+        this.#tooltip.style.right = 'auto'
         this.#tooltip.style.display = 'block'
         this.#tooltip.textContent = override.name
+
+        const tooltipRect = this.#tooltip.getBoundingClientRect()
+
+        if (tooltipRect.right > window.innerWidth) {
+          this.#tooltip.style.left = 'auto'
+          this.#tooltip.style.right = `${window.innerWidth - rect.right - rightOffset}px`
+        }
       }
 
       #hideOverlay() {
