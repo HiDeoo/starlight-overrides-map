@@ -2,14 +2,8 @@
 import Default from '@astrojs/starlight/components/PageFrame.astro'
 import type { Props } from '@astrojs/starlight/props'
 
-// TODO(HiDeoo) Move to pageframe? Remove the single instance check?
-
-// TODO(HiDeoo) only certain page?
-// TODO(HiDeoo) control banner
-// TODO(HiDeoo) mobile/responsive
 // TODO(HiDeoo) click = link to doc for specific override
 // TODO(HiDeoo) click = copy name?
-// TODO(HiDeoo) click = modal containing everything with an example and everything?
 ---
 
 <starlight-override-map>
@@ -78,8 +72,8 @@ import type { Props } from '@astrojs/starlight/props'
 
 <script>
   const overrides: Override[] = [
-    // FIXME(HiDeoo) Head
-    // FIXME(HiDeoo) Accessibility
+    // Accessibility
+    { name: 'SkipLink', selector: "body > a[href='#_top']", offset: 4 },
     // Layout
     { name: 'PageFrame', selector: '.page', offset: { block: [-50, -2], inline: -2 } },
     { name: 'MobileMenuToggle', selector: 'button[aria-controls="starlight__sidebar"]', offset: 10 },
@@ -88,8 +82,7 @@ import type { Props } from '@astrojs/starlight/props'
     { name: 'Header', selector: 'header.header', offset: -2 },
     { name: 'SiteTitle', selector: '.site-title', offset: { inline: 8 } },
     { name: 'Search', selector: 'site-search button', offset: 6 },
-    // TODO(HiDeoo) search modal?
-    // TODO(HiDeoo) SocialIcons
+    { name: 'SocialIcons', selector: '.social-icons', offset: { block: 4, inline: [16, 0] } },
     { name: 'ThemeSelect', selector: 'starlight-theme-select label', offset: { inline: 8 } },
     { name: 'LanguageSelect', selector: 'starlight-lang-select label', offset: { inline: 8 } },
     // Global Sidebar
