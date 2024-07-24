@@ -3,25 +3,36 @@ import { defineConfig } from 'astro/config'
 
 // https://astro.build/config
 export default defineConfig({
+  devToolbar: { enabled: false },
   integrations: [
     starlight({
-      title: 'My Docs',
-      social: {
-        github: 'https://github.com/withastro/starlight',
+      components: {
+        FallbackContentNotice: './src/components/FallbackContentNotice.astro',
+        PageFrame: './src/components/PageFrame.astro',
+      },
+      editLink: {
+        baseUrl: 'https://github.com/HiDeoo/starlight-override-map/edit/main/',
+      },
+      lastUpdated: true,
+      locales: {
+        root: { label: 'English', lang: 'en' },
+        fr: { label: 'Français', lang: 'fr' },
       },
       sidebar: [
-        // {
-        //   label: 'Guides',
-        //   items: [
-        //     // Each item here is one entry in the navigation menu.
-        //     { label: 'Example Guide', slug: 'guides/example' },
-        //   ],
-        // },
-        // {
-        //   label: 'Reference',
-        //   autogenerate: { directory: 'reference' },
-        // },
+        { slug: 'example' },
+        {
+          label: 'Resources',
+          items: [
+            { label: 'Starlight', link: 'https://starlight.astro.build/' },
+            { label: 'Astro', link: 'https://astro.build/' },
+          ],
+        },
       ],
+      social: {
+        github: 'https://github.com/HiDeoo/starlight-override-map',
+      },
+      // TODO(HiDeoo)
+      title: 'My Docs',
     }),
   ],
 })

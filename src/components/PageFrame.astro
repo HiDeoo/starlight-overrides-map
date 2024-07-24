@@ -91,27 +91,27 @@ import type { Props } from '@astrojs/starlight/props'
     // TODO(HiDeoo) search modal?
     // TODO(HiDeoo) SocialIcons
     { name: 'ThemeSelect', selector: 'starlight-theme-select label', offset: { inline: 8 } },
-    // TODO(HiDeoo) LanguageSelect
+    { name: 'LanguageSelect', selector: 'starlight-lang-select label', offset: { inline: 8 } },
     // Global Sidebar
     { name: 'Sidebar', selector: '.sidebar-content', offset: -2 },
-    // TODO(HiDeoo) MobileMenuFooter
+    { name: 'MobileMenuFooter', selector: '.mobile-preferences', offset: { inline: 6 } },
     // Page Sidebar
-    { name: 'PageSidebar', selector: '.right-sidebar', offset: { block: [-50, -2] } },
+    { name: 'PageSidebar', selector: '.right-sidebar', offset: { block: [-113, -2] } },
     { name: 'TableOfContents', selector: 'starlight-toc', offset: 8 },
-    // TODO(HiDeoo) MobileTableOfContents
+    { name: 'MobileTableOfContents', selector: 'mobile-starlight-toc nav' },
     // Content
-    // TODO(HiDeoo) Banner
+    { name: 'Banner', selector: '.sl-banner' },
     { name: 'ContentPanel', selector: '.content-panel' },
     { name: 'PageTitle', selector: 'h1#_top', offset: { inline: 8 } },
-    // TODO(HiDeoo) DraftContentNotice
-    // TODO(HiDeoo) FallbackContentNotice
-    // TODO(HiDeoo) Hero
+    { name: 'DraftContentNotice', selector: 'h1#_top + p', offset: 4 },
+    { name: 'FallbackContentNotice', selector: 'h1#_top + p + p', offset: 4 },
+    { name: 'Hero', selector: '.hero', offset: { block: 4, inline: 8 } },
     { name: 'MarkdownContent', selector: '.sl-markdown-content', offset: 12 },
     // Footer
     { name: 'Footer', selector: 'footer', offset: 8 },
-    // TODO(HiDeoo) LastUpdated
-    // TODO(HiDeoo) EditLink
-    // TODO(HiDeoo) Pagination
+    { name: 'LastUpdated', selector: 'footer .meta > p', offset: 8 },
+    { name: 'EditLink', selector: 'footer .meta > a', offset: 8 },
+    { name: 'Pagination', selector: '.pagination-links', offset: 8 },
   ]
 
   customElements.define(
@@ -204,6 +204,12 @@ import type { Props } from '@astrojs/starlight/props'
         if (tooltipRect.right > window.innerWidth) {
           this.#tooltip.style.left = 'auto'
           this.#tooltip.style.right = `${window.innerWidth - rect.right - rightOffset}px`
+        }
+
+        if (tooltipRect.bottom > window.innerHeight) {
+          this.#tooltip.style.top = isTooltipInside
+            ? `${rect.top + window.scrollY - tooltipRect.height - topOffset + 2}px`
+            : `${rect.top + window.scrollY - tooltipRect.height - topOffset}px`
         }
       }
 
