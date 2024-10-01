@@ -165,11 +165,11 @@ import type { Props } from '@astrojs/starlight/props'
 
       #saveOption(name: keyof Options, value: boolean) {
         this.#options[name] = value
-        sessionStorage.setItem('starlight-overrides-map-options', JSON.stringify(this.#options))
+        localStorage.setItem('starlight-overrides-map-options', JSON.stringify(this.#options))
       }
 
       #restoreOptions() {
-        const savedOptions = sessionStorage.getItem('starlight-overrides-map-options')
+        const savedOptions = localStorage.getItem('starlight-overrides-map-options')
 
         if (savedOptions) {
           try {
