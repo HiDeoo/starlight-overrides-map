@@ -5,7 +5,7 @@ import type { Props } from '@astrojs/starlight/props'
 
 <starlight-overrides-map>
   <div class="starlight-overrides-map-toolbar">
-    <label><input name="enabled" type="checkbox" checked />Enabled</label>
+    <label><input name="enabled" type="checkbox" />Enabled</label>
     <label><input name="open" type="checkbox" checked />Open documentation on click</label>
     <label><input name="copy" type="checkbox" />Copy override name on click</label>
   </div>
@@ -165,11 +165,11 @@ import type { Props } from '@astrojs/starlight/props'
 
       #saveOption(name: keyof Options, value: boolean) {
         this.#options[name] = value
-        sessionStorage.setItem('starlight-overrides-map-options', JSON.stringify(this.#options))
+        localStorage.setItem('starlight-overrides-map-options', JSON.stringify(this.#options))
       }
 
       #restoreOptions() {
-        const savedOptions = sessionStorage.getItem('starlight-overrides-map-options')
+        const savedOptions = localStorage.getItem('starlight-overrides-map-options')
 
         if (savedOptions) {
           try {
