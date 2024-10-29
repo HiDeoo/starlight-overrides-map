@@ -4,6 +4,16 @@ import type { Props } from '@astrojs/starlight/props'
 ---
 
 <starlight-overrides-map>
+  <details open class="starlight-overrides-map-instructions">
+    <summary><strong>How to use</strong></summary>
+    <p>This interactive map helps you find the right component to override in Starlight.</p>
+    <ol>
+      <li>Hover over elements on the page to see which Starlight component they are part of.</li>
+      <li>
+        In the toolbar, choose whether clicking a component should take you to the Starlight docs or copy its name.
+      </li>
+    </ol>
+  </details>
   <div class="starlight-overrides-map-toolbar">
     <label><input name="enabled" type="checkbox" checked />Enabled</label>
     <label><input name="open" type="checkbox" />Open documentation on click</label>
@@ -59,6 +69,19 @@ import type { Props } from '@astrojs/starlight/props'
 </style>
 
 <style>
+  .starlight-overrides-map-instructions {
+    position: fixed;
+    z-index: 90;
+    inset-block-end: 1rem;
+    inset-inline-end: 1rem;
+    width: 30rem;
+    max-width: 75vw;
+    padding: 1rem 1.5rem;
+    background-color: var(--starlight-overrides-map-toolbar-bg-color);
+    color: white;
+    box-shadow: var(--sl-shadow-lg);
+  }
+
   .starlight-overrides-map-toolbar {
     align-items: center;
     background-color: var(--starlight-overrides-map-toolbar-bg-color);
