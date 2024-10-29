@@ -74,12 +74,15 @@ import type { Props } from '@astrojs/starlight/props'
     z-index: 90;
     inset-block-end: 1rem;
     inset-inline-end: 1rem;
-    width: 30rem;
     max-width: 75vw;
     padding: 1rem 1.5rem;
     background-color: var(--starlight-overrides-map-toolbar-bg-color);
     color: white;
     box-shadow: var(--sl-shadow-lg);
+    border-radius: 0.5rem;
+  }
+  .starlight-overrides-map-instructions[open] {
+    width: 30rem;
   }
 
   .starlight-overrides-map-toolbar {
