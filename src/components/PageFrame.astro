@@ -131,13 +131,13 @@ import type { Props } from '@astrojs/starlight/props'
     { name: 'TwoColumnContent', selector: '.lg\\:sl-flex' },
     // Header
     { name: 'Header', selector: 'header.header', offset: -2, id: 'header-1' },
-    { name: 'SiteTitle', selector: '.site-title', offset: { inline: 8 }, id: 'sitetitle-1' },
+    { name: 'SiteTitle', selector: '.site-title', offset: { inline: 8 }, id: 'sitetitle' },
     { name: 'Search', selector: 'site-search button', offset: 6 },
     { name: 'SocialIcons', selector: '.social-icons', offset: { block: 4, inline: [16, 0] } },
     { name: 'ThemeSelect', selector: 'starlight-theme-select label', offset: { inline: 8 } },
     { name: 'LanguageSelect', selector: 'starlight-lang-select label', offset: { inline: 8 } },
     // Global Sidebar
-    { name: 'Sidebar', selector: '.sidebar-content', offset: -2, id: 'sidebar-1' },
+    { name: 'Sidebar', selector: '.sidebar-content', offset: -2, id: 'sidebar' },
     { name: 'MobileMenuFooter', selector: '.mobile-preferences', offset: { inline: 6 } },
     // Page Sidebar
     { name: 'PageSidebar', selector: '.right-sidebar', offset: { block: [-113, -2] } },
@@ -153,9 +153,9 @@ import type { Props } from '@astrojs/starlight/props'
     { name: 'MarkdownContent', selector: '.sl-markdown-content', offset: 12 },
     // Footer
     { name: 'Footer', selector: 'footer', offset: 8, id: 'footer-1' },
-    { name: 'LastUpdated', selector: 'footer .meta > p', offset: 8, id: 'lastupdated-1' },
+    { name: 'LastUpdated', selector: 'footer .meta > p', offset: 8, id: 'lastupdated' },
     { name: 'EditLink', selector: 'footer .meta > a', offset: 8 },
-    { name: 'Pagination', selector: '.pagination-links', offset: 8, id: 'pagination-1' },
+    { name: 'Pagination', selector: '.pagination-links', offset: 8, id: 'pagination' },
   ]
 
   customElements.define(
