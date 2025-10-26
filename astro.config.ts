@@ -1,7 +1,10 @@
 import starlight from '@astrojs/starlight'
 import { defineConfig } from 'astro/config'
 
-// https://astro.build/config
+const site =
+  (process.env['CONTEXT'] === 'production' ? process.env['URL'] : process.env['DEPLOY_PRIME_URL']) ??
+  'https://starlight-overrides-map.netlify.app/'
+
 export default defineConfig({
   devToolbar: { enabled: false },
   integrations: [
@@ -14,6 +17,16 @@ export default defineConfig({
       editLink: {
         baseUrl: 'https://github.com/HiDeoo/starlight-overrides-map/edit/main/',
       },
+      head: [
+        {
+          tag: 'meta',
+          attrs: { property: 'og:image', content: new URL('og.jpg', site).href },
+        },
+        {
+          tag: 'meta',
+          attrs: { property: 'og:image:alt', content: 'An interactive map of Starlight component overrides.' },
+        },
+      ],
       lastUpdated: true,
       locales: {
         root: { label: 'English', lang: 'en' },
@@ -35,4 +48,5 @@ export default defineConfig({
       title: 'Starlight Overrides Map',
     }),
   ],
+  site,
 })
