@@ -1,6 +1,5 @@
 ---
 import Default from '@astrojs/starlight/components/PageFrame.astro'
-import type { Props } from '@astrojs/starlight/props'
 ---
 
 <starlight-overrides-map>
@@ -20,7 +19,7 @@ import type { Props } from '@astrojs/starlight/props'
     <label><input name="copy" type="checkbox" />Copy override name on click</label>
   </div>
 </starlight-overrides-map>
-<Default {...Astro.props}><slot slot="header" name="header" /><slot /><slot slot="sidebar" name="sidebar" /></Default>
+<Default><slot slot="header" name="header" /><slot /><slot slot="sidebar" name="sidebar" /></Default>
 
 <style is:global>
   :root {
