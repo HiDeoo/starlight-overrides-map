@@ -42,9 +42,13 @@ export default defineConfig({
           ],
         },
       ],
-      social: {
-        github: 'https://github.com/HiDeoo/starlight-overrides-map',
-      },
+      social: [
+        {
+          href: 'https://github.com/HiDeoo/starlight-overrides-map',
+          icon: 'github',
+          label: 'GitHub',
+        },
+      ],
       title: 'Starlight Overrides Map',
     }),
   ],
