@@ -127,7 +127,7 @@ import Default from '@astrojs/starlight/components/PageFrame.astro'
     // Layout
     { name: 'PageFrame', selector: '.page', offset: { block: [-50, -2], inline: -2 } },
     { name: 'MobileMenuToggle', selector: 'button[aria-controls="starlight__sidebar"]', offset: 10 },
-    { name: 'TwoColumnContent', selector: '.lg\\:sl-flex' },
+    { name: 'TwoColumnContent', selector: String.raw`.lg\:sl-flex` },
     // Header
     { name: 'Header', selector: 'header.header', offset: -2, id: 'header-1' },
     { name: 'SiteTitle', selector: '.site-title', offset: { inline: 8 }, id: 'sitetitle' },
@@ -351,7 +351,7 @@ import Default from '@astrojs/starlight/components/PageFrame.astro'
         }
 
         if (this.#options.openDocumentationOnClick) {
-          window.location.href = `https://starlight.astro.build/reference/overrides/#${this.#currentOverride.id ?? this.#currentOverride.name.toLowerCase()}`
+          globalThis.location.href = `https://starlight.astro.build/reference/overrides/#${this.#currentOverride.id ?? this.#currentOverride.name.toLowerCase()}`
         }
       }
     },
