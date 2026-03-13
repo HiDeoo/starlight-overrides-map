@@ -36,6 +36,9 @@ jobs:
           cache: pnpm
           node-version: 22
 
+      - name: Install dependencies
+        run: pnpm install
+
       - name: Generates docs TypeScript types
         run: pnpm astro sync
 
